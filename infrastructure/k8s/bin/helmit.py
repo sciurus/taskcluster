@@ -32,14 +32,14 @@ def render_rbac(project_name):
     context = {"project_name": project_name}
     for templatetype in ("role", "role-binding", "service-account"):
         template = yaml.load(open(f"templates/{templatetype}.yaml"), Loader=yaml.SafeLoader)
-        write_file(project_name, template, context, templatetype)
+        write_file(template, context, templatetype)
 
 
 def render_secrets(project_name, secrets):
     format_secrets(secrets)
     context = {"project_name": project_name, "secrets": secrets}
     template = yaml.load(open("templates/secret.yaml"), Loader=yaml.SafeLoader)
-    write_file(project_name, template, context, "secrets")
+    write_file(template, context, "secrets")
 
 
 def render_deployment(project_name, secret_keys, deployment):
@@ -59,7 +59,8 @@ def render_deployment(project_name, secret_keys, deployment):
     context.update(deployment)
     format_values(context)
     template = yaml.load(open("templates/deployment.yaml"), Loader=yaml.SafeLoader)
-    write_file(project_name, template, context, "deployment")
+    suffix = f"deployment-{context['proc_name']}" if context['proc_name'] else "deployment"
+    write_file(template, context, suffix)
 
 def render_cronjob(project_name, secret_keys, deployment):
     context = {
@@ -72,10 +73,11 @@ def render_cronjob(project_name, secret_keys, deployment):
     context.update(deployment)
     format_values(context)
     template = yaml.load(open("templates/cron-job.yaml"), Loader=yaml.SafeLoader)
-    write_file(project_name, template, context, "cron")
+    suffix = f"{context['job_name']}-cron" 
+    write_file(template, context, suffix)
 
-def write_file(project_name, template, context, suffix):
-    filepath = f"{args.chartsdir}/{project_name}-{suffix}.yaml"
+def write_file(template, context, suffix):
+    filepath = f"{args.chartsdir}/{context['project_name']}-{suffix}.yaml"
     try:
         f = open(filepath, "w+")
         f.write(yaml.dump(jsone.render(template, context)))
