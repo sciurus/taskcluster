@@ -6,7 +6,6 @@ import jsone
 import yaml
 import os
 
-# todo: decide on file structure to output
 # todo: add secret hash calculation to deployment
 # todo: make things work no matter cwd and os
 
