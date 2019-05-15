@@ -30,7 +30,9 @@ def format_values(context):
 def render_rbac(project_name):
     context = {"project_name": project_name}
     for templatetype in ("role", "role-binding", "service-account"):
-        template = yaml.load(open(f"templates/{templatetype}.yaml"), Loader=yaml.SafeLoader)
+        template = yaml.load(
+            open(f"templates/{templatetype}.yaml"), Loader=yaml.SafeLoader
+        )
         write_file(template, context, templatetype)
 
 
@@ -58,8 +60,11 @@ def render_deployment(project_name, secret_keys, deployment):
     context.update(deployment)
     format_values(context)
     template = yaml.load(open("templates/deployment.yaml"), Loader=yaml.SafeLoader)
-    suffix = f"deployment-{context['proc_name']}" if context['proc_name'] else "deployment"
+    suffix = (
+        f"deployment-{context['proc_name']}" if context["proc_name"] else "deployment"
+    )
     write_file(template, context, suffix)
+
 
 def render_cronjob(project_name, secret_keys, deployment):
     context = {
@@ -72,8 +77,9 @@ def render_cronjob(project_name, secret_keys, deployment):
     context.update(deployment)
     format_values(context)
     template = yaml.load(open("templates/cron-job.yaml"), Loader=yaml.SafeLoader)
-    suffix = f"cron-{context['job_name']}" 
+    suffix = f"cron-{context['job_name']}"
     write_file(template, context, suffix)
+
 
 def write_file(template, context, suffix):
     filepath = f"{args.chartsdir}/{context['project_name']}-{suffix}.yaml"
@@ -81,12 +87,15 @@ def write_file(template, context, suffix):
         f = open(filepath, "w+")
         f.write(yaml.dump(jsone.render(template, context)))
         f.close()
-    except: 
+    except:
         print(f"failed to write {filepath}")
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--service", help="Name of the service to render", default=None)
-parser.add_argument("--chartsdir", help="Directory to hold charts. Created if absent.", default="charts")
+parser.add_argument(
+    "--chartsdir", help="Directory to hold charts. Created if absent.", default="charts"
+)
 args = parser.parse_args()
 
 try:
