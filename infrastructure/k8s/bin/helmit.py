@@ -30,9 +30,9 @@ def format_values(context):
 
 def render_rbac(project_name):
     context = {"project_name": project_name}
-    for template in ("role", "role-binding", "service-account"):
-        template = yaml.load(open(f"templates/{template}.yaml"), Loader=yaml.SafeLoader)
-        write_file(project_name, template, context, template)
+    for templatetype in ("role", "role-binding", "service-account"):
+        template = yaml.load(open(f"templates/{templatetype}.yaml"), Loader=yaml.SafeLoader)
+        write_file(project_name, template, context, templatetype)
 
 
 def render_secrets(project_name, secrets):
@@ -74,14 +74,14 @@ def render_cronjob(project_name, secret_keys, deployment):
     template = yaml.load(open("templates/cron-job.yaml"), Loader=yaml.SafeLoader)
     write_file(project_name, template, context, "cron")
 
-def write_file(project_name, template, context, prefix):
-    filename = chartsdir + "/taskcluster-" + prefix + "-" + project_name
+def write_file(project_name, template, context, suffix):
+    filepath = f"{args.chartsdir}/{project_name}-{suffix}.yaml"
     try:
-        f = open(filename, "w+")
+        f = open(filepath, "w+")
         f.write(yaml.dump(jsone.render(template, context)))
         f.close()
     except: 
-        print(f"failed to write {filename}")
+        print(f"failed to write {filepath}")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--service", help="Name of the service to render", default=None)
