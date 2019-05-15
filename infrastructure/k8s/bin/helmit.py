@@ -32,14 +32,14 @@ def render_rbac(project_name):
     context = {"project_name": project_name}
     for template in ("role", "role-binding", "service-account"):
         template = yaml.load(open(f"templates/{template}.yaml"), Loader=yaml.SafeLoader)
-        write_file(template, context, "rbac")
+        write_file(project_name, template, context, template)
 
 
 def render_secrets(project_name, secrets):
     format_secrets(secrets)
     context = {"project_name": project_name, "secrets": secrets}
     template = yaml.load(open("templates/secret.yaml"), Loader=yaml.SafeLoader)
-    write_file(template, context, "secrets")
+    write_file(project_name, template, context, "secrets")
 
 
 def render_deployment(project_name, secret_keys, deployment):
@@ -59,7 +59,7 @@ def render_deployment(project_name, secret_keys, deployment):
     context.update(deployment)
     format_values(context)
     template = yaml.load(open("templates/deployment.yaml"), Loader=yaml.SafeLoader)
-    write_file(template, context, "deployment")
+    write_file(project_name, template, context, "deployment")
 
 def render_cronjob(project_name, secret_keys, deployment):
     context = {
@@ -72,25 +72,25 @@ def render_cronjob(project_name, secret_keys, deployment):
     context.update(deployment)
     format_values(context)
     template = yaml.load(open("templates/cron-job.yaml"), Loader=yaml.SafeLoader)
-    write_file(template, context, "cron")
+    write_file(project_name, template, context, "cron")
 
-def write_file(template, context, prefix):
-    filename = chartsdir + "/taskcluster-" + prefix + "-" + p.split("/")[-1:][0]
+def write_file(project_name, template, context, prefix):
+    filename = chartsdir + "/taskcluster-" + prefix + "-" + project_name
     try:
-        f = open(filename, "a+")
+        f = open(filename, "w+")
         f.write(yaml.dump(jsone.render(template, context)))
         f.close()
     except: 
-        print("failed to write "+ filename)
+        print(f"failed to write {filename}")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--service", help="Name of the service to render", default=None)
+parser.add_argument("--chartsdir", help="Directory to hold charts. Created if absent.", default="charts")
 args = parser.parse_args()
-chartsdir = "charts"
 
 try:
-    os.mkdir(chartsdir)
-except:
+    os.mkdir(args.chartsdir)
+except FileExistsError:
     pass
 
 if args.service:
