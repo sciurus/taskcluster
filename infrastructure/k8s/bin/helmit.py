@@ -73,7 +73,7 @@ def render_cronjob(project_name, secret_keys, deployment):
     context.update(deployment)
     format_values(context)
     template = yaml.load(open("templates/cron-job.yaml"), Loader=yaml.SafeLoader)
-    suffix = f"{context['job_name']}-cron" 
+    suffix = f"cron-{context['job_name']}" 
     write_file(template, context, suffix)
 
 def write_file(template, context, suffix):
