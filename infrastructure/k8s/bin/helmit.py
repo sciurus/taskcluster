@@ -4,6 +4,7 @@ import argparse
 import glob
 import jsone
 import yaml
+import os
 
 # todo: decide on file structure to output
 # todo: add secret hash calculation to deployment
@@ -29,18 +30,16 @@ def format_values(context):
 
 def render_rbac(project_name):
     context = {"project_name": project_name}
-    for template in ("role", "role-binding", "service-account"):
-        template = yaml.load(open(f"templates/{template}.yaml"), Loader=yaml.SafeLoader)
-        print("---")
-        print(yaml.dump(jsone.render(template, context)))
+    for templatetype in ("role", "role-binding", "service-account"):
+        template = yaml.load(open(f"templates/{templatetype}.yaml"), Loader=yaml.SafeLoader)
+        write_file(template, context, templatetype)
 
 
 def render_secrets(project_name, secrets):
     format_secrets(secrets)
     context = {"project_name": project_name, "secrets": secrets}
     template = yaml.load(open("templates/secret.yaml"), Loader=yaml.SafeLoader)
-    print("---")
-    print(yaml.dump(jsone.render(template, context)))
+    write_file(template, context, "secrets")
 
 
 def render_deployment(project_name, secret_keys, deployment):
@@ -60,9 +59,8 @@ def render_deployment(project_name, secret_keys, deployment):
     context.update(deployment)
     format_values(context)
     template = yaml.load(open("templates/deployment.yaml"), Loader=yaml.SafeLoader)
-    print("---")
-    print(yaml.dump(jsone.render(template, context)))
-
+    suffix = f"deployment-{context['proc_name']}" if context['proc_name'] else "deployment"
+    write_file(template, context, suffix)
 
 def render_cronjob(project_name, secret_keys, deployment):
     context = {
@@ -75,13 +73,27 @@ def render_cronjob(project_name, secret_keys, deployment):
     context.update(deployment)
     format_values(context)
     template = yaml.load(open("templates/cron-job.yaml"), Loader=yaml.SafeLoader)
-    print("---")
-    print(yaml.dump(jsone.render(template, context)))
+    suffix = f"cron-{context['job_name']}" 
+    write_file(template, context, suffix)
 
+def write_file(template, context, suffix):
+    filepath = f"{args.chartsdir}/{context['project_name']}-{suffix}.yaml"
+    try:
+        f = open(filepath, "w+")
+        f.write(yaml.dump(jsone.render(template, context)))
+        f.close()
+    except: 
+        print(f"failed to write {filepath}")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--service", help="Name of the service to render", default=None)
+parser.add_argument("--chartsdir", help="Directory to hold charts. Created if absent.", default="charts")
 args = parser.parse_args()
+
+try:
+    os.mkdir(args.chartsdir)
+except FileExistsError:
+    pass
 
 if args.service:
     service_declarations = [f"services/{args.service}.yaml"]
