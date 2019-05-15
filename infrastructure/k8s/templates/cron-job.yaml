@@ -13,7 +13,7 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
-          activeDeadlineSeconds: ${deadline_seconds}
+          activeDeadlineSeconds: {$eval: 'deadline_seconds'}
           volumes:
             $if: 'len(volume_mounts) > 0'
             then:
