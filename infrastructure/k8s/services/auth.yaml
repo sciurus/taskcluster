@@ -1,7 +1,7 @@
 project_name: "taskcluster-auth"
 secrets:
   aws_access_key_id: ".Values.authAwsAccessKeyId"
-  aws_region: ".Values.awsRegion"
+  aws_region: ".Values.tfAwsRegion"
   aws_secret_access_key: ".Values.authAwsSecretAccessKey"
   azure_account: ".Values.tfAzureAccount"
   azure_accounts: ".Values.azureAccounts"
