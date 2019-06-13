@@ -6,9 +6,12 @@ function genpw () {
     openssl rand -base64 94 |  tr -d '\n' | cut -c1-"$1"
 }
 
-genpw 32 > auth_azure_crypto_key
-genpw 32 > hooks_azure_crypto_key
-genpw 32 > secrets_azure_crypto_key
+# these require an extra pass of base64 encoding to make the services happy
+genpw 32 | base64 > auth_azure_crypto_key
+genpw 32 | base64 > hooks_azure_crypto_key
+genpw 32 | base64 > secrets_azure_crypto_key
+
+# these do not
 genpw 40 > auth_azure_signing_key
 genpw 40 > hooks_azure_signing_key
 genpw 40 > secrets_azure_signing_key
