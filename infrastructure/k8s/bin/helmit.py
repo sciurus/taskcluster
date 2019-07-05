@@ -104,7 +104,7 @@ def write_file(template, context, suffix):
 parser = argparse.ArgumentParser()
 parser.add_argument("--service", help="Name of the service to render", default=None)
 parser.add_argument(
-    "--chartsdir", help="Directory to hold charts. Created if absent.", default="chart/templates"
+    "--destination", help="Directory to hold helm templates. Created if absent.", default="chart/templates"
 )
 args = parser.parse_args()
 
