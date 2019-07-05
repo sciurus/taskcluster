@@ -39,17 +39,17 @@ module "taskcluster" {
 }
 ```
 
-Then, authenticate to AWS and Azure before applying. How to do this will vary depending on what methods you use to store their credentials (e.g. `aws-vault`). For RabbitMQ, 
+Then, authenticate to AWS and Azure before applying. How to do this will vary depending on what methods you use to store their credentials (e.g. `aws-vault`). For RabbitMQ, be sure to have `RABBITMQ_USERNAME` and `RABBITMQ_PASSWORD` set.
 
-Finally, run `create-aws-access-keys.sh` and `create-random-secrets.sh`. This will perform those operatiosn and write the output to disk  for you to load into k8s later.
+Finally, run `create-aws-access-keys.sh` and `create-random-secrets.sh`. This will perform those operatiosn and write the output to disk for you to load into k8s later.
 
-## K8S
+## Kubernetes
 
 ### Using
 
 Before using this, you need a python 3 installation with a couple packages installed via ` pip install -r requirements.txt`
 
-To render helm for all services, run `./bin/helmit.py`. To limit it to a specific service, use the `--service` flag followed by the service name. Output goes in the `charts` directory.
+To generate a helm chart for all the services, run `./bin/helmit.py`. To limit it to a specific service, use the `--service` flag followed by the service name. Output goes in the `charts` directory.
 
 You will need to set values for all the variables in `sample-helm-values.yaml` in order to apply the generated helm charts
 
